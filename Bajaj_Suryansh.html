@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>21BEC0099</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: auto;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 10px;
+        }
+        button {
+            margin-top: 10px;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+        #response {
+            margin-top: 20px;
+            white-space: pre-wrap;
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        #dropdown {
+            margin-top: 20px;
+        }
+        label {
+            display: block;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h2>JSON Validator and API Caller</h2>
+    <textarea id="jsonInput" placeholder="Enter valid JSON"></textarea>
+    <button id="submitBtn">Submit</button>
+    <div id="error" class="error"></div>
+    <div id="dropdown"></div>
+    <div id="response"></div>
+
+    <script>
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            const jsonInput = document.getElementById('jsonInput').value;
+            const errorDiv = document.getElementById('error');
+            const dropdownDiv = document.getElementById('dropdown');
+            const responseDiv = document.getElementById('response');
+            errorDiv.textContent = '';
+            dropdownDiv.innerHTML = '';
+            responseDiv.textContent = '';
+
+            let parsedJson;
+            try {
+                parsedJson = JSON.parse(jsonInput);
+            } catch (e) {
+                errorDiv.textContent = 'Invalid JSON input';
+                return;
+            }
+
+            callApi(parsedJson).then(response => {
+                const options = `
+                    <label><input type="checkbox" value="alphabets"> Alphabets</label>
+                    <label><input type="checkbox" value="numbers"> Numbers</label>
+                    <label><input type="checkbox" value="highest_lowercase"> Highest lowercase alphabet</label>
+                    <button id="filterBtn">Filter Response</button>
+                `;
+                dropdownDiv.innerHTML = options;
+
+                document.getElementById('filterBtn').addEventListener('click', function() {
+                    const selectedOptions = Array.from(dropdownDiv.querySelectorAll('input[type="checkbox"]:checked')).map(el => el.value);
+                    renderResponse(response, selectedOptions);
+                });
+            }).catch(error => {
+                errorDiv.textContent = 'Error calling API: ' + error.message;
+            });
+        });
+
+        function callApi(json) {
+            return fetch('https://your-backend-url.com/api', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(json)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            });
+        }
+
+        function renderResponse(response, selectedOptions) {
+            const responseDiv = document.getElementById('response');
+            let filteredResponse = {};
+
+            if (selectedOptions.includes('alphabets')) {
+                filteredResponse.alphabets = response.alphabets;
+            }
+
+            if (selectedOptions.includes('numbers')) {
+                filteredResponse.numbers = response.numbers;
+            }
+
+            if (selectedOptions.includes('highest_lowercase')) {
+                filteredResponse.highest_lowercase = response.highest_lowercase;
+            }
+
+            responseDiv.textContent = JSON.stringify(filteredResponse, null, 2);
+        }
+    </script>
+</body>
+</html>
