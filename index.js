@@ -2,12 +2,10 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const app = express();
-const PORT = 3000;
+const PORT = 5000;
 
-// Middleware to parse JSON bodies
 app.use(bodyParser.json());
 
-// In-memory storage for demonstration purposes
 let dataStore = [];
 
 function processData(request) {
@@ -15,7 +13,7 @@ function processData(request) {
 
     console.log(data);
 
-    // Separate numbers and alphabets
+
     const numbers = [];
     const alphabets = [];
 
@@ -27,11 +25,10 @@ function processData(request) {
         }
     });
 
-    // Find the highest lowercase alphabet
+    
     const lowercaseAlphabets = alphabets.filter(char => /[a-z]/.test(char));
     let highestLowercaseAlphabet = lowercaseAlphabets.length > 0 ? [lowercaseAlphabets.sort().pop()] : [];
 
-    // Build the response object
     const response = {
         numbers: numbers,
         alphabets: alphabets,
@@ -41,16 +38,13 @@ function processData(request) {
     return response;
 }
 
-// GET route to retrieve data
 app.get('/bfhl', (req, res) => {
     res.json({ operation_code: 1 });
 });
 
-// POST route to add data
 app.post('/bfhl', (req, res) => {
     const newData = req.body;
 
-    // Basic validation
     if (!newData || !newData.data) {
         return res.status(400).json({ error: 'Data is required' });
     }
